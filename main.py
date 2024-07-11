@@ -2,8 +2,9 @@
 Main app file, all api route are declared there
 """
 
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 from application.interfaces.controllers.database_controller import DatabaseController
+from application.use_cases.create_user import CreateUser
 from infrastructure.data.env_reader import EnvReader
 
 dotenv = EnvReader()
@@ -26,6 +27,22 @@ def index():
         "status": "200",
         "response": "pong"
     }), 200
+
+@app.route('/auth/signup', methods=['GET'])
+def signup():
+    """
+    Create user
+    """
+    uc_create_user = CreateUser(controller=db_controller)
+    return jsonify({
+        "status": "200",
+        "repsonse": uc_create_user.create(
+            username=request.args["username"],
+            email=request.args["email"],
+            password=request.args["password"]
+        )
+    })
+
 
 
 if __name__ == '__main__':

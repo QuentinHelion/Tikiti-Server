@@ -19,17 +19,24 @@ class DatabaseController:
         )
 
 
-    def save_task(self, title, descript, deadline, user_id):
+    def insert(self, table, columns, values):
         """
-        :param av:
-        :param report:
-        :param user:
+        :param table: table 
+        :param columns: table's columns
+        :param values: column's values
         :return: bool depend on if insert is working
         """
         self.db_presenter.connect()
+        delimiter = ','
+        if isinstance(columns, list):
+            columns = delimiter.join(map(str, columns))
+
+        if isinstance(values, list):
+            values = delimiter.join([f"'{str(v)}'" for v in values])
+
         result = self.db_presenter.execute_command(
-            f"INSERT INTO TASKS(title, descript, deadline, user_id) "
-            f"VALUES ('{title}', '{descript}', '{deadline}', '{user_id}')"
+            f"INSERT INTO {table}({columns}) "
+            f"VALUES ({values})"
         )
 
         self.db_presenter.disconnect()
