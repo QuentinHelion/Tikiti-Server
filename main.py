@@ -18,29 +18,21 @@ db_controller = DatabaseController(
 app = Flask(__name__)
 
 
-@app.route('/', methods=['GET'])
-def index():
-    """
-    bla bla bla
-    """
-    return jsonify({
-        "status": "200",
-        "response": "pong"
-    }), 200
-
 @app.route('/auth/signup', methods=['GET'])
 def signup():
     """
     Create user
     """
     uc_create_user = CreateUser(controller=db_controller)
-    return jsonify({
-        "status": "200",
-        "repsonse": uc_create_user.create(
+    result = uc_create_user.create(
             username=request.args["username"],
             email=request.args["email"],
             password=request.args["password"]
         )
+    
+    return jsonify({
+        "status": "200" if result else "500",
+        "repsonse": result
     })
 
 
