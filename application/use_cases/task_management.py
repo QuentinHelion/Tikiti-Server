@@ -7,7 +7,7 @@ class TaskManager:
     Class with all methoods
     """
 
-    def __ini__(self, db_controller):
+    def __init__(self, db_controller):
         self.db_controller = db_controller
 
     
