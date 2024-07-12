@@ -12,7 +12,7 @@ class CreateUser:
     """
 
     def __init__(self, controller):
-        self.controller = controller
+        self.db_controller = controller
         self.hasher = PasswordHasher()
         self.table_name = "USERS"
 
@@ -31,7 +31,7 @@ class CreateUser:
             print(error)
             return False
 
-        result = self.controller.insert(
+        result = self.db_controller.insert(
             table="USERS",
             columns=["username", "email", "passwd"],
             values=[username, email, pass_hash]
@@ -39,8 +39,7 @@ class CreateUser:
 
         return result
 
-    @staticmethod
-    def is_valid_email(email):
+    def is_valid_email(self, email):
         """
         Checks if an email address is valid.
         :param email: str, email to validate
@@ -49,4 +48,15 @@ class CreateUser:
         email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
         if not re.match(email_regex, email):
             return False
+
+        db_check = self.db_controller.select(
+            table="USERS",
+            columns="email",
+            values=email
+        )
+
+        if db_check is not None:
+            print("Email already exist")
+            return False
+        
         return True

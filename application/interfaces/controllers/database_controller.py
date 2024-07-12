@@ -58,7 +58,7 @@ class DatabaseController:
                         for i in range(1, len(columns)):
                             condition += f" AND {columns[i]} = '{values[i]}'"
             else:
-                condition = f"{columns} = {values}"
+                condition = f"{columns} = '{values}'"
         else:
             condition = ""
 
