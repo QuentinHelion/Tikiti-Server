@@ -55,8 +55,8 @@ class CreateUser:
             values=email
         )
 
-        if db_check is not None:
+        if len(db_check) > 0:
             print("Email already exist")
             return False
-        
+
         return True

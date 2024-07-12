@@ -42,7 +42,7 @@ class DatabaseController:
         self.db_presenter.disconnect()
         return result
 
-    def select(self, table, select="*", columns=None, values=None, custom_condition=""):
+    def select(self, table, select="*", columns=None, values=None):
         """
         Get all tasks from user id
         :return: string
@@ -54,7 +54,6 @@ class DatabaseController:
                 if isinstance(values, list):
                     if len(values) == len(columns):
                         condition = f"{columns[0]} = '{values[0]}'"
-                        # condition.join([f" AND {columns[i]} = '{values[i]}'" for i in range(1, len(columns))])
                         for i in range(1, len(columns)):
                             condition += f" AND {columns[i]} = '{values[i]}'"
             else:
@@ -65,7 +64,7 @@ class DatabaseController:
 
         result = self.db_presenter.execute_query(
                 f"SELECT {select} FROM {table} "
-                f"WHERE {condition} {custom_condition}"
+                f"WHERE {condition}"
             )
 
         self.db_presenter.disconnect()

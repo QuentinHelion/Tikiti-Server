@@ -3,10 +3,10 @@ Main app file, all api route are declared there
 """
 
 from flask import Flask, request, jsonify, abort
+
 from application.interfaces.controllers.database_controller import DatabaseController
 from application.use_cases.auth_user import UserAuthentication
 from application.use_cases.create_user import CreateUser
-from application.use_cases.task_management import TaskManager
 from infrastructure.data.env_reader import EnvReader
 from infrastructure.data.token import generate_token
 
@@ -21,7 +21,8 @@ db_controller = DatabaseController(
 app = Flask(__name__)
 TOKEN_SIZE = 16
 USERS_TOKENS = []
-EXCLUDED_ROUTES = ["/auth/login","/auth/logout"]
+EXCLUDED_ROUTES = ["/auth/login", "/auth/logout","/auth/signup"]
+
 
 @app.before_request
 def before_request():
@@ -35,7 +36,7 @@ def before_request():
                     code=401,
                     description=jsonify({
                         "status": "401",
-                        "message": "Unautorized"
+                        "response": "Unautorized"
                     })
                 )
         else:
@@ -43,10 +44,9 @@ def before_request():
                 code=401,
                 description=jsonify({
                     "status": "401",
-                    "message": "Unautorized"
+                    "response": "Unautorized"
                 })
             )
-
 
 
 @app.route('/auth/signup', methods=['GET'])
@@ -55,25 +55,27 @@ def signup():
     Create user
     """
 
-    if "email" not in request.args or "password" not in request.args or "username" not in request.args:
+    if ("email" not in request.args
+            or "password" not in request.args
+            or "username" not in request.args):
         abort(
-                code=400,
-                description=jsonify({
-                    "status": "400",
-                    "message": "Missing args"
-                })
-            )
-        
+            code=400,
+            description=jsonify({
+                "status": "400",
+                "response": "Missing args"
+            })
+        )
+
     uc_create_user = CreateUser(controller=db_controller)
     result = uc_create_user.create(
-            username=request.args["username"],
-            email=request.args["email"],
-            password=request.args["password"]
-        )
-    
+        username=request.args["username"],
+        email=request.args["email"],
+        password=request.args["password"]
+    )
+
     return jsonify({
         "status": "200" if result else "500",
-        "repsonse": result
+        "response": result
     }), 200 if result else 500
 
 
@@ -90,12 +92,12 @@ def auth_login():
 
     if "email" not in request.args or "password" not in request.args:
         abort(
-                code=400,
-                description=jsonify({
-                    "status": "400",
-                    "message": "Missing args"
-                })
-            )
+            code=400,
+            description=jsonify({
+                "status": "400",
+                "response": "Missing args"
+            })
+        )
 
     result = uc_auth_user.login(
         email=request.args["email"],
@@ -110,14 +112,13 @@ def auth_login():
         })
         return jsonify({
             "status": "200",
-            "repsonse": token
+            "response": token
         }), 200
 
-    else:
-        return jsonify({
-            "status": "500",
-            "resposne": "Bad credentials"
-        }), 500
+    return jsonify({
+        "status": "500",
+        "response": "Bad credentials"
+    }), 500
 
 
 @app.route('/auth/logout', methods=['GET'])
@@ -138,12 +139,12 @@ def auth_logout():
         print(f"No item found with token: {token}")
         return jsonify({
             "status": "400",
-            "message": "Unknown token"
+            "response": "Unknown token"
         }), 400
     print(f"after: {USERS_TOKENS}")
     return jsonify({
         "status": "200",
-        "message": "Successfully disconnected"
+        "response": "Successfully disconnected"
     }), 200
 
 
@@ -161,9 +162,8 @@ def task_add():
     USERS_TOKENS.remove(token)
     return jsonify({
         "status": "200",
-        "message": "Successfully disconnected"
+        "response": "Successfully disconnected"
     }), 200
-
 
 
 if __name__ == '__main__':
