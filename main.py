@@ -6,6 +6,7 @@ from flask import Flask, request, jsonify, abort
 from application.interfaces.controllers.database_controller import DatabaseController
 from application.use_cases.auth_user import UserAuthentication
 from application.use_cases.create_user import CreateUser
+from application.use_cases.task_management import TaskManager
 from infrastructure.data.env_reader import EnvReader
 from infrastructure.data.token import generate_token
 
@@ -20,6 +21,32 @@ db_controller = DatabaseController(
 app = Flask(__name__)
 TOKEN_SIZE = 16
 USERS_TOKENS = []
+EXCLUDED_ROUTES = ["/auth/login","/auth/logout"]
+
+@app.before_request
+def before_request():
+    """
+    Before request, check if token is give and if it is valid
+    """
+    if request.path not in EXCLUDED_ROUTES:
+        if "token" in request.args:
+            if request.args["token"] not in USERS_TOKENS:
+                abort(
+                    code=401,
+                    description=jsonify({
+                        "status": "401",
+                        "message": "Unautorized"
+                    })
+                )
+        else:
+            abort(
+                code=401,
+                description=jsonify({
+                    "status": "401",
+                    "message": "Unautorized"
+                })
+            )
+
 
 
 @app.route('/auth/signup', methods=['GET'])
@@ -49,8 +76,9 @@ def signup():
         "repsonse": result
     }), 200 if result else 500
 
+
 @app.route('/auth/login', methods=['GET'])
-def login():
+def auth_login():
     """
     User login
     :return: token
@@ -76,7 +104,10 @@ def login():
 
     if result:
         token = generate_token(TOKEN_SIZE)
-        USERS_TOKENS.append(token)
+        USERS_TOKENS.append({
+            "token": token,
+            "email": request.args['email']
+        })
         return jsonify({
             "status": "200",
             "repsonse": token
@@ -90,9 +121,36 @@ def login():
 
 
 @app.route('/auth/logout', methods=['GET'])
-def disconnect():
+def auth_logout():
     """
     delete user token from USERS_TOKEN array
+    """
+    if "token" not in request.args:
+        return jsonify({
+            "status": "400",
+            "response": "Missing token"
+        }), 400
+    token = request.args["token"]
+    print(f"before: {USERS_TOKENS}")
+    try:
+        USERS_TOKENS.remove(next(item for item in USERS_TOKENS if item['token'] == token))
+    except StopIteration:
+        print(f"No item found with token: {token}")
+        return jsonify({
+            "status": "400",
+            "message": "Unknown token"
+        }), 400
+    print(f"after: {USERS_TOKENS}")
+    return jsonify({
+        "status": "200",
+        "message": "Successfully disconnected"
+    }), 200
+
+
+@app.route('/task/add', methods=['GET'])
+def task_add():
+    """
+    add task
     """
     if "token" not in request.args:
         return jsonify({
