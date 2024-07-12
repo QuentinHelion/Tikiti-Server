@@ -42,15 +42,31 @@ class DatabaseController:
         self.db_presenter.disconnect()
         return result
 
-    def get_tasks(self, user_id):
+    def select(self, table, select="*", columns=None, values=None, custom_condition=""):
         """
         Get all tasks from user id
         :return: string
         """
         self.db_presenter.connect()
-        result = self.db_presenter.execute_command(
-                f"SELECT * FROM TASKS WHERE "
-                f"user_id LIKE {user_id}')"
+
+        if columns is not None and values is not None:
+            if isinstance(columns, list):
+                if isinstance(values, list):
+                    if len(values) == len(columns):
+                        condition = f"{columns[0]} = '{values[0]}'"
+                        # condition.join([f" AND {columns[i]} = '{values[i]}'" for i in range(1, len(columns))])
+                        for i in range(1, len(columns)):
+                            condition += f" AND {columns[i]} = '{values[i]}'"
+            else:
+                condition = f"{columns} = {values}"
+        else:
+            condition = ""
+
+
+        result = self.db_presenter.execute_query(
+                f"SELECT {select} FROM {table} "
+                f"WHERE {condition} {custom_condition}"
             )
+
         self.db_presenter.disconnect()
         return result
