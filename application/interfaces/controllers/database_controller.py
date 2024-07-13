@@ -44,7 +44,7 @@ class DatabaseController:
 
     def select(self, table, select="*", columns=None, values=None):
         """
-        Get all tasks from user id
+        Select raw from table
         :return: string
         """
         self.db_presenter.connect()
@@ -69,3 +69,27 @@ class DatabaseController:
 
         self.db_presenter.disconnect()
         return result
+
+    def delete(self, table, columns=None, values=None):
+        """
+        delete raw from table
+        :return: string
+        """
+        self.db_presenter.connect()
+
+        if columns is not None and values is not None:
+            if isinstance(columns, list):
+                if isinstance(values, list):
+                    if len(values) == len(columns):
+                        condition = f"{columns[0]} = '{values[0]}'"
+                        for i in range(1, len(columns)):
+                            condition += f" AND {columns[i]} = '{values[i]}'"
+            else:
+                condition = f"{columns} = '{values}'"
+        else:
+            return False
+
+        return self.db_presenter.execute_query(
+            f"DELETE FROM {table} "
+            f"WHERE {condition}"
+        )

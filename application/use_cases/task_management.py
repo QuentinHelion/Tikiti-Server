@@ -21,24 +21,26 @@ class TaskManager:
         :return: bool, depend on result of task saving
         """
 
-        print("check if user exist")
-        print(user_id)
-        print(self.db_controller.select(
-            table="USERS",
-            select="id",
-            columns="id",
-            values=user_id
-        ))
-
         if len(self.db_controller.select(
                 table="USERS",
                 columns="id",
                 values=user_id
         )) == 0: return False
 
-        print("insert new task")
         return self.db_controller.insert(
             table="TASKS",
             columns=["title", "user_id", "deadline", "descript"],
             values=[title, user_id, deadline, descript if descript is not None else ""]
+        )
+
+    def delete(self, id):
+        """
+        Methods to delete task
+        :param id: ID of task
+        :return: bool, depend on result of task deletion
+        """
+        return self.db_controller.delete(
+            table="TASKS",
+            columns="id",
+            value=id
         )
