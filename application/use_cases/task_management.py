@@ -33,14 +33,14 @@ class TaskManager:
             values=[title, user_id, deadline, descript if descript is not None else ""]
         )
 
-    def delete(self, id):
+    def delete(self, task_id):
         """
         Methods to delete task
-        :param id: ID of task
+        :param task_id: ID of task
         :return: bool, depend on result of task deletion
         """
         return self.db_controller.delete(
             table="TASKS",
             columns="id",
-            value=id
+            value=task_id
         )
