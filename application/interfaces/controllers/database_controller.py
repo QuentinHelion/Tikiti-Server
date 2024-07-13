@@ -63,9 +63,9 @@ class DatabaseController:
 
 
         result = self.db_presenter.execute_query(
-                f"SELECT {select} FROM {table} "
-                f"WHERE {condition}"
-            )
+            f"SELECT {select} FROM {table} "
+            f"WHERE {condition}"
+        )
 
         self.db_presenter.disconnect()
         return result

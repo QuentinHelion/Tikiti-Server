@@ -7,6 +7,7 @@ from flask import Flask, request, jsonify, abort
 from application.interfaces.controllers.database_controller import DatabaseController
 from application.use_cases.auth_user import UserAuthentication
 from application.use_cases.create_user import CreateUser
+from application.use_cases.task_management import TaskManager
 from infrastructure.data.env_reader import EnvReader
 from infrastructure.data.token import generate_token
 
@@ -17,11 +18,17 @@ db_controller = DatabaseController(
     user=dotenv.get("DB_USER"),
     password=dotenv.get("DB_PASS")
 )
+uc_user = UserAuthentication(
+    db_controller=db_controller
+)
 
 app = Flask(__name__)
 TOKEN_SIZE = 16
-USERS_TOKENS = []
-EXCLUDED_ROUTES = ["/auth/login", "/auth/logout","/auth/signup"]
+USERS_TOKENS = [{
+    "token": "rr8Rh24Eff1UvRTR",
+    "email": "qhel.spam@gmail.com"
+}]
+EXCLUDED_ROUTES = ["/auth/login", "/auth/logout", "/auth/signup"]
 
 
 @app.before_request
@@ -31,7 +38,8 @@ def before_request():
     """
     if request.path not in EXCLUDED_ROUTES:
         if "token" in request.args:
-            if request.args["token"] not in USERS_TOKENS:
+            if uc_user.check_login(request.args["token"], USERS_TOKENS) is False:
+                print("Token is not valid")
                 abort(
                     code=401,
                     description=jsonify({
@@ -40,6 +48,7 @@ def before_request():
                     })
                 )
         else:
+            print("Missing token")
             abort(
                 code=401,
                 description=jsonify({
@@ -153,17 +162,41 @@ def task_add():
     """
     add task
     """
-    if "token" not in request.args:
+    if "title" not in request.args and "deadline" not in request.args:
         return jsonify({
             "status": "400",
-            "response": "Missing token"
+            "response": "Missing args"
         }), 400
-    token = request.args["token"]
-    USERS_TOKENS.remove(token)
+
+    if "description" not in request.args:
+        description = None
+    else:
+        description = request.args["description"]
+
+    email = uc_user.check_login(
+        token=request.args["token"],
+        tokens_list=USERS_TOKENS
+    )
+
+    uc_task_manager = TaskManager(
+        db_controller=db_controller
+    )
+
+    uc_user.get_user_id(email)
+
+    result = uc_task_manager.new(
+        title=request.args["title"],
+        user_id=uc_user.get_user_id(email),
+        deadline=request.args["deadline"],
+        descript=description
+    )
+
+    print(result)
+
     return jsonify({
-        "status": "200",
-        "response": "Successfully disconnected"
-    }), 200
+        "status": "200" if result else "500",
+        "response": "Successfully saved" if result else "Error on save task"
+    }), 200 if result else 500
 
 
 if __name__ == '__main__':

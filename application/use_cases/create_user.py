@@ -18,6 +18,7 @@ class CreateUser:
 
     def create(self, username, email, password):
         """
+        :param username: username
         :param email: user email
         :param password:  user password
         :return: query result (if working: id of user)

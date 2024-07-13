@@ -35,20 +35,28 @@ class UserAuthentication:
 
         return True
 
-
     def get_user_id(self, email):
         """
         Get user id
         :param email: user email
-        :param token: user token
         :return: user id if user exist, False if not  
         """
         user_id = self.db_controller.select(
             table="USERS",
-            select="id",
+            select="*",
             columns="email",
             values=email
         )
         if user_id is not None:
-            return user_id
+            return user_id[0][0]
+        return False
+
+    @staticmethod
+    def check_login(token, tokens_list):
+        """
+        Check if user token is present on token list
+        """
+        for entry in tokens_list:
+            if entry['token'] == token:
+                return entry['email']
         return False

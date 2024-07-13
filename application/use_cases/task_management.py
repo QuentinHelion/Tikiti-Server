@@ -21,12 +21,22 @@ class TaskManager:
         :return: bool, depend on result of task saving
         """
 
-        if not self.db_controller.select(
+        print("check if user exist")
+        print(user_id)
+        print(self.db_controller.select(
+            table="USERS",
+            select="id",
+            columns="id",
+            values=user_id
+        ))
+
+        if len(self.db_controller.select(
                 table="USERS",
                 columns="id",
                 values=user_id
-        ): return False
+        )) == 0: return False
 
+        print("insert new task")
         return self.db_controller.insert(
             table="TASKS",
             columns=["title", "user_id", "deadline", "descript"],
