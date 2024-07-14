@@ -10,6 +10,10 @@ This project is split on 3 parts
 
 Tikiti run using python3, you can install it manually.
 Install requirements, run this app.
+```
+pip install -r requirements.txt
+python3 main.py
+```
 
 ## Docker
 

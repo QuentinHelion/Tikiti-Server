@@ -10,9 +10,9 @@ class DatabasePresenter:
     Gateway to db
     """
 
-    def __init__(self, host, database, user, password, port=3306):
+    def __init__(self, host, database, user, password):
         self.host = host
-        self.port = port
+        self.port = 3306
         self.database = database
         self.user = user
         self.password = password

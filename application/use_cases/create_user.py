@@ -18,6 +18,7 @@ class CreateUser:
 
     def create(self, username, email, password):
         """
+        :param username: username
         :param email: user email
         :param password:  user password
         :return: query result (if working: id of user)
@@ -55,8 +56,8 @@ class CreateUser:
             values=email
         )
 
-        if db_check is not None:
+        if len(db_check) > 0:
             print("Email already exist")
             return False
-        
+
         return True
