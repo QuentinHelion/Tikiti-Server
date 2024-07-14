@@ -182,8 +182,6 @@ def task_add():
         db_controller=db_controller
     )
 
-    uc_user.get_user_id(email)
-
     result = uc_task_manager.new(
         title=request.args["title"],
         user_id=uc_user.get_user_id(email),
@@ -192,6 +190,70 @@ def task_add():
     )
 
     print(result)
+
+    return jsonify({
+        "status": "200" if result else "500",
+        "response": "Successfully saved" if result else "Error on save task"
+    }), 200 if result else 500
+
+
+@app.route('/task/update', methods=['GET'])
+def task_update():
+    """
+    Update task
+    """
+    if ("task_id" not in request.args and "values" not in request.args
+            and "columns" not in request.args):
+        return jsonify({
+            "status": "400",
+            "response": "Missing args"
+        }), 400
+
+    email = uc_user.check_login(
+        token=request.args["token"],
+        tokens_list=USERS_TOKENS
+    )
+
+    uc_task_manager = TaskManager(
+        db_controller=db_controller
+    )
+
+    result = uc_task_manager.update(
+        task_id=request.args["task_id"],
+        user_id=uc_user.get_user_id(email),
+        columns=request.args["columns"],
+        values=request.args["values"]
+    )
+
+    return jsonify({
+        "status": "200" if result else "500",
+        "response": "Successfully saved" if result else "Error on save task"
+    }), 200 if result else 500
+
+@app.route('/task/delete', methods=['GET'])
+def task_delete():
+    """
+    delete task
+    """
+    if "task_id" not in request.args:
+        return jsonify({
+            "status": "400",
+            "response": "Missing args"
+        }), 400
+
+    email = uc_user.check_login(
+        token=request.args["token"],
+        tokens_list=USERS_TOKENS
+    )
+
+    uc_task_manager = TaskManager(
+        db_controller=db_controller
+    )
+
+    result = uc_task_manager.delete(
+        task_id=request.args["task_id"],
+        user_id=uc_user.get_user_id(email)
+    )
 
     return jsonify({
         "status": "200" if result else "500",

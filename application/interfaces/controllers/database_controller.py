@@ -18,7 +18,6 @@ class DatabaseController:
             password=password
         )
 
-
     def insert(self, table, columns, values):
         """
         :param table: table 
@@ -61,7 +60,6 @@ class DatabaseController:
         else:
             condition = ""
 
-
         result = self.db_presenter.execute_query(
             f"SELECT {select} FROM {table} "
             f"WHERE {condition}"
@@ -89,7 +87,46 @@ class DatabaseController:
         else:
             return False
 
-        return self.db_presenter.execute_query(
+        result = self.db_presenter.execute_command(
             f"DELETE FROM {table} "
             f"WHERE {condition}"
         )
+        self.db_presenter.connect()
+        return result
+
+    def update(self, table, columns=None, values=None, condition=None):
+        """
+        Update raw from table
+        :param table: table
+        :param columns: table's columns
+        :param values: column's values
+        :param condition: condition
+        :return: bool depend on if update is working
+        """
+        self.db_presenter.connect()
+        if columns is not None and values is not None:
+            if isinstance(columns, list):
+                if isinstance(values, list):
+                    if len(values) == len(columns):
+                        sets = f"{columns[0]} = '{values[0]}'"
+                        for i in range(1, len(columns)):
+                            sets += f" AND {columns[i]} = '{values[i]}'"
+            else:
+                sets = f"{columns} = '{values}'"
+        else:
+            return False
+
+        print(
+            f"UPDATE {table} "
+            f"SET {sets} "
+            f"WHERE {condition}"
+        )
+
+        result = self.db_presenter.execute_command(
+            f"UPDATE {table} "
+            f"SET {sets} "
+            f"WHERE {condition}"
+        )
+
+        self.db_presenter.connect()
+        return result
