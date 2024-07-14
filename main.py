@@ -260,6 +260,31 @@ def task_delete():
         "response": "Successfully saved" if result else "Error on save task"
     }), 200 if result else 500
 
+@app.route('/task/get', methods=['GET'])
+def task_get():
+    """
+    Get all tasks
+    """
+    email = uc_user.check_login(
+        token=request.args["token"],
+        tokens_list=USERS_TOKENS
+    )
+
+    uc_task_manager = TaskManager(
+        db_controller=db_controller
+    )
+
+    result = uc_task_manager.get_all(
+        user_id=uc_user.get_user_id(email)
+    )
+
+    print(result)
+
+    return jsonify({
+        "status": "200" if result else "500",
+        "response": result if result else "Error on getting task"
+    }), 200 if result else 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

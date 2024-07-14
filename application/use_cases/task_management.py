@@ -78,3 +78,14 @@ class TaskManager:
             values=values,
             condition=f"id = {task_id}"
         )
+
+    def get_all(self, user_id):
+        """
+        Methods to get all tasks
+        """
+        return self.db_controller.select(
+            table="TASKS",
+            select="id, title, descript, deadline",
+            columns="user_id",
+            values=user_id
+        )
