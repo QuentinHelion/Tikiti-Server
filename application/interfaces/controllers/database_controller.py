@@ -33,7 +33,7 @@ class DatabaseController:
         if isinstance(values, list):
             values = delimiter.join([f"'{str(v)}'" for v in values])
 
-        result = self.db_presenter.execute_command(
+        result = self.db_presenter.execute_query(
             f"INSERT INTO {table}({columns}) "
             f"VALUES ({values})"
         )
