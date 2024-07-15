@@ -24,10 +24,7 @@ uc_user = UserAuthentication(
 
 app = Flask(__name__)
 TOKEN_SIZE = 16
-USERS_TOKENS = [{
-    "token": "rr8Rh24Eff1UvRTR",
-    "email": "qhel.spam@gmail.com"
-}]
+USERS_TOKENS = []
 EXCLUDED_ROUTES = ["/auth/login", "/auth/logout", "/auth/signup"]
 
 
@@ -287,4 +284,4 @@ def task_get():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0')

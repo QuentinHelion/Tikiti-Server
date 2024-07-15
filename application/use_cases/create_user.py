@@ -24,14 +24,17 @@ class CreateUser:
         :return: query result (if working: id of user)
         """
         if not self.is_valid_email(email):
+            print('CREATE USER | ERROR | INVALID EMAIL')
             return False
 
         try:
             pass_hash = self.hasher.hash_password(password)
+            print('CREATE USER | ERROR | ERROR PASS HASH')
         except ValueError as error:
             print(error)
             return False
 
+        print('CREATE USER | LOG | CREATE USER')
         result = self.db_controller.insert(
             table="USERS",
             columns=["username", "email", "passwd"],
